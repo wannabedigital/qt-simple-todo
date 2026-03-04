@@ -73,15 +73,38 @@ void MainWindow::on_deleteButton_clicked()
 
 void MainWindow::on_editButton_clicked()
 {
+    int id = getSelectedId();
+    if (id == -1) return;
 
+    int row = ui->tableView->selectionModel()->selectedRows()[0].row();
+    QString oldTitle = model->data(model->index(row, 1)).toString();
+
+    QString newTitle = QInputDialog::getText(this, "Редактирование", "Измените название задачи:",
+                                             QLineEdit::Normal, oldTitle, &ok).trimmed();
+
+    if (!ok || newTitle.isEmpty()) {
+        return;
+    }
+
+    query->prepare("UPDATE tasks SET title = :title WHERE id = :id");
+    query->bindValue(":id", id);
+    query->bindValue(":title", newTitle.trimmed());
+
+
+    if (query->exec()) {
+        model->select();
+    }
+
+    ok = false;
 }
 
 
 void MainWindow::on_addButton_clicked()
 {
-    QString title = QInputDialog::getText(this, "Новая задача", "Введите название задачи:", QLineEdit::Normal, "", &ok);
+    QString title = QInputDialog::getText(this, "Новая задача", "Введите название задачи:",
+                                          QLineEdit::Normal, "", &ok).trimmed();
 
-    if (!ok || title.trimmed().isEmpty()) {
+    if (!ok || title.isEmpty()) {
         return;
     }
 
@@ -99,6 +122,15 @@ void MainWindow::on_addButton_clicked()
 
 void MainWindow::on_markDoneButton_clicked()
 {
+    int id = getSelectedId();
+    if (id == -1) return;
 
+    query->prepare("UPDATE tasks SET done = 1, time_done = :time, WHERE id = :id");
+    query->bindValue(":time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+    query->bindValue(":id", id);
+
+    if (query->exec()) {
+        model->select();
+    }
 }
 
