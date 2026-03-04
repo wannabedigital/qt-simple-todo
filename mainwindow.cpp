@@ -125,7 +125,7 @@ void MainWindow::on_markDoneButton_clicked()
     int id = getSelectedId();
     if (id == -1) return;
 
-    query->prepare("UPDATE tasks SET done = 1, time_done = :time, WHERE id = :id");
+    query->prepare("UPDATE tasks SET done = 1, time_done = :time WHERE id = :id");
     query->bindValue(":time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
     query->bindValue(":id", id);
 
