@@ -34,10 +34,23 @@ MainWindow::MainWindow(QWidget *parent)
     model->setTable("tasks");
     model->select();
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model->setHeaderData(1, Qt::Horizontal, "Название задачи");
+    model->setHeaderData(2, Qt::Horizontal, "Дата создания");
+    model->setHeaderData(3, Qt::Horizontal, "Дата завершения");
+    model->setHeaderData(4, Qt::Horizontal, "Выполнено");
+    model->setHeaderData(5, Qt::Horizontal, "Рейтинг");
 
     ui->tableView->setModel(model);
+
+    ui->tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+
     ui->tableView->hideColumn(0);
-    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 
@@ -67,7 +80,15 @@ int MainWindow::getSelectedId()
 
 void MainWindow::on_deleteButton_clicked()
 {
+    int id = getSelectedId();
+    if (id == -1) return;
 
+    query->prepare("DELETE FROM tasks WHERE id = :id");
+    query->bindValue(":id", id);
+
+    if (query->exec()) {
+        model->select();
+    }
 }
 
 
@@ -77,18 +98,25 @@ void MainWindow::on_editButton_clicked()
     if (id == -1) return;
 
     int row = ui->tableView->selectionModel()->selectedRows()[0].row();
-    QString oldTitle = model->data(model->index(row, 1)).toString();
 
+    int oldRating = model->data(model->index(row, 4)).toInt();
+    int newRating = QInputDialog::getInt(this, "Рейтинг", "Рейтинг выполнения (0-100):",
+                                         oldRating, 0, 100, 1, &ok);
+    if (!ok) return;
+
+    ok = false;
+
+    QString oldTitle = model->data(model->index(row, 1)).toString();
     QString newTitle = QInputDialog::getText(this, "Редактирование", "Измените название задачи:",
                                              QLineEdit::Normal, oldTitle, &ok).trimmed();
-
     if (!ok || newTitle.isEmpty()) {
         return;
     }
 
-    query->prepare("UPDATE tasks SET title = :title WHERE id = :id");
+    query->prepare("UPDATE tasks SET title = :title, rating = :rating WHERE id = :id");
     query->bindValue(":id", id);
     query->bindValue(":title", newTitle.trimmed());
+    query->bindValue(":rating", newRating);
 
 
     if (query->exec()) {
