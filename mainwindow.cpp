@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableView->hideColumn(0);
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+
 }
 
 MainWindow::~MainWindow()
@@ -47,3 +49,56 @@ MainWindow::~MainWindow()
     delete query;
     delete model;
 }
+
+
+int MainWindow::getSelectedId()
+{
+    QModelIndexList selected = ui->tableView->selectionModel()->selectedRows();
+    if (selected.isEmpty()) {
+        return -1;
+    }
+
+    int row = selected[0].row();
+    QModelIndex idIndex = model->index(row, 0);
+    return model->data(idIndex).toInt();
+}
+
+
+
+void MainWindow::on_deleteButton_clicked()
+{
+
+}
+
+
+void MainWindow::on_editButton_clicked()
+{
+
+}
+
+
+void MainWindow::on_addButton_clicked()
+{
+    QString title = QInputDialog::getText(this, "Новая задача", "Введите название задачи:", QLineEdit::Normal, "", &ok);
+
+    if (!ok || title.trimmed().isEmpty()) {
+        return;
+    }
+
+    query->prepare("INSERT INTO tasks (title, time_added, done, rating) VALUES (:title, :time, 0, 0)");
+    query->bindValue(":title", title);
+    query->bindValue(":time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+
+    if (query->exec()) {
+        model->select();
+    }
+
+    ok = false;
+}
+
+
+void MainWindow::on_markDoneButton_clicked()
+{
+
+}
+
