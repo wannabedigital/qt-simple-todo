@@ -96,8 +96,10 @@ void MainWindow::on_deleteButton_clicked()
 
     if (query->exec()) {
         model->select();
-        updateState(ui->tableView->currentIndex());
+
     }
+
+    updateState(ui->tableView->currentIndex());
 }
 
 
@@ -122,10 +124,10 @@ void MainWindow::on_editButton_clicked()
 
     if (query->exec()) {
         model->select();
-        updateState(ui->tableView->currentIndex());
     }
 
     ok = false;
+    updateState(ui->tableView->currentIndex());
 }
 
 
@@ -147,10 +149,10 @@ void MainWindow::on_ratingButton_clicked()
 
     if (query->exec()) {
         model->select();
-        updateState(ui->tableView->currentIndex());
     }
 
     ok = false;
+    updateState(ui->tableView->currentIndex());
 }
 
 
@@ -169,9 +171,10 @@ void MainWindow::on_addButton_clicked()
 
     if (query->exec()) {
         model->select();
-        updateState(ui->tableView->currentIndex());
+
     }
 
+    updateState(ui->tableView->currentIndex());
     ok = false;
 }
 
@@ -197,8 +200,10 @@ void MainWindow::on_markDoneButton_clicked()
 
     if (query->exec()) {
         model->select();
-        updateState(ui->tableView->currentIndex());
+
     }
+
+    updateState(ui->tableView->currentIndex());
 }
 
 
@@ -213,7 +218,7 @@ void MainWindow::updateState(const QModelIndex &current)
         return;
     }
 
-    ui->lineEdit->setText(QString::number(current.column()));
+    ui->lineEdit->setText(QString::number(current.row()));
     ui->markDoneButton->setEnabled(true);
     ui->editButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
