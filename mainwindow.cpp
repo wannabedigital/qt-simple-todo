@@ -50,10 +50,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
 
     ui->tableView->hideColumn(0);
-    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    ui->markDoneButton->setEnabled(false);
+    ui->editButton->setEnabled(false);
+    ui->deleteButton->setEnabled(false);
+    ui->ratingButton->setEnabled(false);
 
+    connect(ui->tableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::updateState);
+    updateState(ui->tableView->currentIndex());
 }
 
 MainWindow::~MainWindow()
@@ -72,6 +79,7 @@ int MainWindow::getSelectedId()
     }
 
     int row = selected[0].row();
+
     QModelIndex idIndex = model->index(row, 0);
     return model->data(idIndex).toInt();
 }
@@ -88,6 +96,7 @@ void MainWindow::on_deleteButton_clicked()
 
     if (query->exec()) {
         model->select();
+        updateState(ui->tableView->currentIndex());
     }
 }
 
@@ -99,13 +108,6 @@ void MainWindow::on_editButton_clicked()
 
     int row = ui->tableView->selectionModel()->selectedRows()[0].row();
 
-    int oldRating = model->data(model->index(row, 4)).toInt();
-    int newRating = QInputDialog::getInt(this, "Рейтинг", "Рейтинг выполнения (0-100):",
-                                         oldRating, 0, 100, 1, &ok);
-    if (!ok) return;
-
-    ok = false;
-
     QString oldTitle = model->data(model->index(row, 1)).toString();
     QString newTitle = QInputDialog::getText(this, "Редактирование", "Измените название задачи:",
                                              QLineEdit::Normal, oldTitle, &ok).trimmed();
@@ -113,14 +115,39 @@ void MainWindow::on_editButton_clicked()
         return;
     }
 
-    query->prepare("UPDATE tasks SET title = :title, rating = :rating WHERE id = :id");
+    query->prepare("UPDATE tasks SET title = :title WHERE id = :id");
     query->bindValue(":id", id);
     query->bindValue(":title", newTitle.trimmed());
-    query->bindValue(":rating", newRating);
 
 
     if (query->exec()) {
         model->select();
+        updateState(ui->tableView->currentIndex());
+    }
+
+    ok = false;
+}
+
+
+void MainWindow::on_ratingButton_clicked()
+{
+    int id = getSelectedId();
+    if (id == -1) return;
+
+    int row = ui->tableView->selectionModel()->selectedRows()[0].row();
+
+    int oldRating = model->data(model->index(row, 5)).toInt();
+    int newRating = QInputDialog::getInt(this, "Рейтинг", "Рейтинг выполнения (0-100):",
+                                         oldRating, 0, 100, 1, &ok);
+    if (!ok) return;
+
+    query->prepare("UPDATE tasks SET rating = :rating WHERE id = :id");
+    query->bindValue(":id", id);
+    query->bindValue(":rating", newRating);
+
+    if (query->exec()) {
+        model->select();
+        updateState(ui->tableView->currentIndex());
     }
 
     ok = false;
@@ -142,6 +169,7 @@ void MainWindow::on_addButton_clicked()
 
     if (query->exec()) {
         model->select();
+        updateState(ui->tableView->currentIndex());
     }
 
     ok = false;
@@ -153,12 +181,59 @@ void MainWindow::on_markDoneButton_clicked()
     int id = getSelectedId();
     if (id == -1) return;
 
-    query->prepare("UPDATE tasks SET done = 1, time_done = :time WHERE id = :id");
-    query->bindValue(":time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
-    query->bindValue(":id", id);
+    int row = ui->tableView->selectionModel()->selectedRows()[0].row();
+    bool taskStatus = model->data(model->index(row, 4)).toBool();
+
+    if (!taskStatus) {
+        query->prepare("UPDATE tasks SET done = 1, time_done = :time WHERE id = :id");
+        query->bindValue(":time", QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+        query->bindValue(":id", id);
+    } else {
+        query->prepare("UPDATE tasks SET done = 0, time_done = :time WHERE id = :id");
+        query->bindValue(":time", "");
+        query->bindValue(":id", id);
+    }
+
 
     if (query->exec()) {
         model->select();
+        updateState(ui->tableView->currentIndex());
     }
 }
 
+
+void MainWindow::updateState(const QModelIndex &current)
+{
+    if (!current.isValid()) {
+        ui->markDoneButton->setEnabled(false);
+        ui->editButton->setEnabled(false);
+        ui->deleteButton->setEnabled(false);
+        ui->ratingButton->setEnabled(false);
+        ui->lineEdit->setText("Invalid");
+        return;
+    }
+
+    ui->lineEdit->setText(QString::number(current.column()));
+    ui->markDoneButton->setEnabled(true);
+    ui->editButton->setEnabled(true);
+    ui->deleteButton->setEnabled(true);
+    ui->ratingButton->setEnabled(true);
+
+    int row = current.row();
+    bool taskStatus = model->data(model->index(row, 4)).toBool();
+    int taskRating = model->data(model->index(row, 5)).toInt();
+
+    if (!taskStatus) {
+        ui->markDoneButton->setText("Выполнить");
+    } else {
+        ui->markDoneButton->setText("Отменить выполнение");
+    }
+
+    if (taskRating == 0) {
+        ui->ratingButton->setText("Оценить");
+    } else {
+        ui->ratingButton->setText("Изменить оценку");
+    }
+
+    return;
+}

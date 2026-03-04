@@ -24,11 +24,16 @@ private slots:
 
     void on_editButton_clicked();
 
+    void on_ratingButton_clicked();
+
     void on_addButton_clicked();
 
     void on_markDoneButton_clicked();
 
     int getSelectedId();
+
+    void updateState(const QModelIndex &current);
+
 
 private:
     Ui::MainWindow *ui;
