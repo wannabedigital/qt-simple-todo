@@ -276,7 +276,44 @@ void MainWindow::on_resetFilterButton_clicked()
     ui->showDoneRadioButton->setChecked(false);
     ui->showUndoneRadioButton->setAutoExclusive(true);
     ui->showDoneRadioButton->setAutoExclusive(true);
+    ui->minRatingSpinBox->setValue(0);
+    ui->maxRatingSpinBox->setValue(100);
     model->setFilter("");
     model->select();
+}
+
+
+void MainWindow::on_minRatingSpinBox_valueChanged(int minValue)
+{
+    if (minValue > ui->maxRatingSpinBox->value()) {
+        ui->maxRatingSpinBox->setValue(minValue);
+    }
+
+    applyRatingFilter();
+}
+
+
+void MainWindow::on_maxRatingSpinBox_valueChanged(int maxValue)
+{
+    if (maxValue < ui->minRatingSpinBox->value()) {
+        ui->minRatingSpinBox->setValue(maxValue);
+    }
+
+    applyRatingFilter();
+}
+
+void MainWindow::applyRatingFilter()
+{
+    int minRating = ui->minRatingSpinBox->value();
+    int maxRating = ui->maxRatingSpinBox->value();
+
+    if (minRating >= 0 || maxRating <= 100) {
+        QString minRatingStr, maxRatingStr;
+        minRatingStr.setNum(minRating);
+        maxRatingStr.setNum(maxRating);
+
+        model->setFilter(tr("rating BETWEEN ") + minRatingStr + tr(" AND ") + maxRatingStr);
+        model->select();
+    }
 }
 

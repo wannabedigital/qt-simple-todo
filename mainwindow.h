@@ -40,6 +40,12 @@ private slots:
 
     void on_resetFilterButton_clicked();
 
+    void on_minRatingSpinBox_valueChanged(int minValue);
+
+    void on_maxRatingSpinBox_valueChanged(int maxValue);
+
+    void applyRatingFilter();
+
 private:
     Ui::MainWindow *ui;
     QSqlDatabase db;
