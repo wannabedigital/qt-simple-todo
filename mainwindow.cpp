@@ -61,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->tableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::updateState);
     updateState(ui->tableView->currentIndex());
+
+    ui->widget_6->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -293,14 +295,17 @@ void MainWindow::on_minRatingSpinBox_valueChanged(int minValue)
 }
 
 
-void MainWindow::on_maxRatingSpinBox_valueChanged(int maxValue)
+void MainWindow::on_maxRatingSpinBox_editingFinished()
 {
+    int maxValue = ui->maxRatingSpinBox->value();
+
     if (maxValue < ui->minRatingSpinBox->value()) {
         ui->minRatingSpinBox->setValue(maxValue);
     }
 
     applyFilter();
 }
+
 
 void MainWindow::applyFilter()
 {
@@ -329,5 +334,19 @@ void MainWindow::applyFilter()
 
     model->setFilter(filters);
     model->select();
+}
+
+
+
+
+void MainWindow::on_showFilterButton_clicked()
+{
+    filterExpanded = !filterExpanded;
+
+    if (filterExpanded) {
+        ui->widget_6->setVisible(true);
+    } else {
+        ui->widget_6->setVisible(false);
+    }
 }
 

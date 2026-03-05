@@ -42,9 +42,11 @@ private slots:
 
     void on_minRatingSpinBox_valueChanged(int minValue);
 
-    void on_maxRatingSpinBox_valueChanged(int maxValue);
+    void on_maxRatingSpinBox_editingFinished();
 
     void applyFilter();
+
+    void on_showFilterButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -52,5 +54,7 @@ private:
     QSqlQuery *query;
     QSqlTableModel *model;
     bool ok = false;
+
+    bool filterExpanded = false;
 };
 #endif // MAINWINDOW_H
