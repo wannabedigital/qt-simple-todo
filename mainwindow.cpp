@@ -247,3 +247,24 @@ void MainWindow::updateState(const QModelIndex &current)
 
     return;
 }
+
+void MainWindow::on_showUnDone_clicked()
+{
+    model->setFilter("done=0");
+    model->select();
+}
+
+
+void MainWindow::on_showDone_clicked()
+{
+    model->setFilter("done=1");
+    model->select();
+}
+
+
+void MainWindow::on_showAll_clicked()
+{
+    model->setFilter("");
+    model->select();
+}
+

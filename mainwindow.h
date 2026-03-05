@@ -35,6 +35,12 @@ private slots:
     void updateState(const QModelIndex &current);
 
 
+    void on_showUnDone_clicked();
+
+    void on_showDone_clicked();
+
+    void on_showAll_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSqlDatabase db;
