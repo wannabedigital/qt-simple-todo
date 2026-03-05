@@ -68,6 +68,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete query;
     delete model;
+    db.close();
 }
 
 
@@ -127,6 +128,8 @@ void MainWindow::on_editButton_clicked()
     }
 
     ok = false;
+    ui->tableView->clearSelection();
+    ui->tableView->setCurrentIndex(QModelIndex());
     updateState(ui->tableView->currentIndex());
 }
 
@@ -152,6 +155,8 @@ void MainWindow::on_ratingButton_clicked()
     }
 
     ok = false;
+    ui->tableView->clearSelection();
+    ui->tableView->setCurrentIndex(QModelIndex());
     updateState(ui->tableView->currentIndex());
 }
 
@@ -211,14 +216,14 @@ void MainWindow::updateState(const QModelIndex &current)
 {
     if (!current.isValid()) {
         ui->markDoneButton->setEnabled(false);
+        ui->markDoneButton->setText("Выполнить");
         ui->editButton->setEnabled(false);
         ui->deleteButton->setEnabled(false);
         ui->ratingButton->setEnabled(false);
-        ui->lineEdit->setText("Invalid");
+        ui->ratingButton->setText("Оценить");
         return;
     }
 
-    ui->lineEdit->setText(QString::number(current.row()));
     ui->markDoneButton->setEnabled(true);
     ui->editButton->setEnabled(true);
     ui->deleteButton->setEnabled(true);
