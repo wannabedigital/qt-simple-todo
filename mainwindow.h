@@ -34,12 +34,11 @@ private slots:
 
     void updateState(const QModelIndex &current);
 
+    void on_showUndoneRadioButton_toggled(bool checked);
 
-    void on_showUnDone_clicked();
+    void on_showDoneRadioButton_toggled(bool checked);
 
-    void on_showDone_clicked();
-
-    void on_showAll_clicked();
+    void on_resetFilterButton_clicked();
 
 private:
     Ui::MainWindow *ui;
