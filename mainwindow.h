@@ -44,7 +44,7 @@ private slots:
 
     void on_maxRatingSpinBox_valueChanged(int maxValue);
 
-    void applyRatingFilter();
+    void applyFilter();
 
 private:
     Ui::MainWindow *ui;

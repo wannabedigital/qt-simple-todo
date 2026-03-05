@@ -253,8 +253,8 @@ void MainWindow::on_showUndoneRadioButton_toggled(bool checked)
     if (!checked) {
         return;
     }
-    model->setFilter("done=0");
-    model->select();
+
+    applyFilter();
 }
 
 
@@ -263,8 +263,8 @@ void MainWindow::on_showDoneRadioButton_toggled(bool checked)
     if (!checked) {
         return;
     }
-    model->setFilter("done=1");
-    model->select();
+
+    applyFilter();
 }
 
 
@@ -289,7 +289,7 @@ void MainWindow::on_minRatingSpinBox_valueChanged(int minValue)
         ui->maxRatingSpinBox->setValue(minValue);
     }
 
-    applyRatingFilter();
+    applyFilter();
 }
 
 
@@ -299,21 +299,35 @@ void MainWindow::on_maxRatingSpinBox_valueChanged(int maxValue)
         ui->minRatingSpinBox->setValue(maxValue);
     }
 
-    applyRatingFilter();
+    applyFilter();
 }
 
-void MainWindow::applyRatingFilter()
+void MainWindow::applyFilter()
 {
+    QString filters = "";
+
+    if (ui->showDoneRadioButton->isChecked()) {
+        filters += "done = 1";
+    } else if (ui->showUndoneRadioButton->isChecked()) {
+        filters += "done = 0";
+    }
+
     int minRating = ui->minRatingSpinBox->value();
     int maxRating = ui->maxRatingSpinBox->value();
 
     if (minRating >= 0 || maxRating <= 100) {
+        if (!filters.isEmpty()) {
+            filters += " AND ";
+        }
         QString minRatingStr, maxRatingStr;
         minRatingStr.setNum(minRating);
         maxRatingStr.setNum(maxRating);
 
-        model->setFilter(tr("rating BETWEEN ") + minRatingStr + tr(" AND ") + maxRatingStr);
-        model->select();
+
+        filters += (tr("rating BETWEEN ") + minRatingStr + tr(" AND ") + maxRatingStr);
     }
+
+    model->setFilter(filters);
+    model->select();
 }
 
