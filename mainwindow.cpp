@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->tableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::updateState);
     updateState(ui->tableView->currentIndex());
 
-    ui->widget_6->setVisible(false);
+    ui->widget_8->layout()->setSpacing(0);
 }
 
 MainWindow::~MainWindow()
@@ -337,16 +337,8 @@ void MainWindow::applyFilter()
 }
 
 
-
-
-void MainWindow::on_showFilterButton_clicked()
+void MainWindow::on_applyFilterButton_clicked()
 {
-    filterExpanded = !filterExpanded;
-
-    if (filterExpanded) {
-        ui->widget_6->setVisible(true);
-    } else {
-        ui->widget_6->setVisible(false);
-    }
+    applyFilter();
 }
 

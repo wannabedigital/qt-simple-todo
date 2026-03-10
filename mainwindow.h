@@ -46,7 +46,7 @@ private slots:
 
     void applyFilter();
 
-    void on_showFilterButton_clicked();
+    void on_applyFilterButton_clicked();
 
 private:
     Ui::MainWindow *ui;
