@@ -61,8 +61,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->tableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::updateState);
     updateState(ui->tableView->currentIndex());
-
-    ui->widget_8->layout()->setSpacing(0);
 }
 
 MainWindow::~MainWindow()
@@ -341,4 +339,3 @@ void MainWindow::on_applyFilterButton_clicked()
 {
     applyFilter();
 }
-
